@@ -5,7 +5,8 @@ class Swordsman extends Character {
     if (type !== Swordsman) {
       throw new Error('Ошибка. Допускаются только персонажи типа: Swordsman');
     }
-    super(level, type);
+    const unitType = 'swordsman';
+    super(level, unitType);
     this.attack = 40;
     this.defence = 10;
   }

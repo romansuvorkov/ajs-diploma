@@ -5,7 +5,8 @@ class Vampire extends Character {
     if (type !== Vampire) {
       throw new Error('Ошибка. Допускаются только персонажи типа: Vampire ');
     }
-    super(level, type);
+    const unitType = 'vampire';
+    super(level, unitType);
     this.attack = 40;
     this.defence = 10;
   }

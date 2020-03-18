@@ -5,7 +5,8 @@ class Daemon extends Character {
     if (type !== Daemon) {
       throw new Error('Ошибка. Допускаются только персонажи типа: Daemon');
     }
-    super(level, type);
+    const unitType = 'daemon';
+    super(level, unitType);
     this.attack = 10;
     this.defence = 40;
   }

@@ -5,7 +5,8 @@ class Undead extends Character {
     if (type !== Undead) {
       throw new Error('Ошибка. Допускаются только персонажи типа: Undead');
     }
-    super(level, type);
+    const unitType = 'undead';
+    super(level, unitType);
     this.attack = 25;
     this.defence = 25;
   }

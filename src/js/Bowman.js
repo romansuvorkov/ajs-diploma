@@ -5,7 +5,8 @@ class Bowman extends Character {
     if (type !== Bowman) {
       throw new Error('Ошибка. Допускаются только персонажи типа: Bowman');
     }
-    super(level, type);
+    const unitType = 'bowman';
+    super(level, unitType);
     this.attack = 25;
     this.defence = 25;
   }
