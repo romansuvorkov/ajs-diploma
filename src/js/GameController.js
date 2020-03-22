@@ -7,13 +7,17 @@ import Vampire from './Vampire';
 import Undead from './Undead';
 import Magician from './Magician';
 import PositionedCharacter from './PositionedCharacter';
+import allowedMoves from './allowedMoves';
+import cursors from './cursors';
+
 
 let PlayerTeam = [];
 let ComputerTeam = [];
 let charatersPositions = [];
 const spawnZonePlayer = [0, 1, 8, 9, 16, 17, 24, 25, 32, 33, 40, 41, 48, 49, 56, 57];
 const spawnZoneComputer = [6, 7, 14, 15, 22, 23, 30, 31, 38, 39, 46, 47, 54, 55, 62, 63];
-let activeUnitPisotion = null;
+let activeUnit = null;
+let allowedMovesForActiveUnit;
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -44,34 +48,61 @@ export default class GameController {
 
   onCellClick(index) {
     // TODO: react to click
+    for (let i = 0; i < charatersPositions.length; i++) {
+      if (charatersPositions[i].position === index && (charatersPositions[i].character.type ==='magician' || charatersPositions[i].character.type === 'swordsman' || charatersPositions[i].character.type === 'bowman')) {
+        if (activeUnit !== null) {
+          this.gamePlay.deselectCell(activeUnit.position);
+        }
+        activeUnit = charatersPositions[i];
+        allowedMovesForActiveUnit = allowedMoves(activeUnit.character.type, activeUnit.position);
+        this.gamePlay.selectCell(index, 'yellow');
+      } 
+    }
+
+  if (activeUnit === null) {
     if (this.gamePlay.cells[index].firstChild) {
       if (this.gamePlay.cells[index].firstChild.classList.contains('magician') ||
           this.gamePlay.cells[index].firstChild.classList.contains('swordsman') ||
           this.gamePlay.cells[index].firstChild.classList.contains('bowman')
       ) {
-        if (activeUnitPisotion !== null) {
-          this.gamePlay.deselectCell(activeUnitPisotion);
-        }
-        activeUnitPisotion = index;
-        this.gamePlay.selectCell(index, 'yellow');
       } else {
         GamePlay.showError('Можно выбирать только персонажей Bowman, Magician, Swordsman');
       }
     } else {
       GamePlay.showError('Можно выбирать только персонажей Bowman, Magician, Swordsman');
     }
+  }
+
+    if (activeUnit !== null) {
+      if (allowedMovesForActiveUnit.includes(index)) {
+          this.gamePlay.deselectCell(activeUnit.position);
+          activeUnit.position = index;
+          allowedMovesForActiveUnit = allowedMoves(activeUnit.character.type, activeUnit.position);
+          this.gamePlay.redrawPositions(charatersPositions);
+          this.gamePlay.selectCell(index, 'yellow');
+      }
+    }
+
 
   }
+
 
   onCellEnter(index) {
     let characterInCell = undefined;
     charatersPositions.forEach(element => {
       if (element.position === index) {
-            characterInCell = element.character;
+            characterInCell = element;
           }
     });
     if (characterInCell !== undefined) {
-      this.gamePlay.showCellTooltip(`${String.fromCodePoint(0x1F396)}:${characterInCell.level}${String.fromCodePoint(0x2694)}:${characterInCell.attack}${String.fromCodePoint(0x1F6E1)}:${characterInCell.defence}${String.fromCodePoint(0x2764)}:${characterInCell.health}`, index)
+      this.gamePlay.showCellTooltip(`${String.fromCodePoint(0x1F396)}:${characterInCell.character.level}${String.fromCodePoint(0x2694)}:${characterInCell.character.attack}${String.fromCodePoint(0x1F6E1)}:${characterInCell.character.defence}${String.fromCodePoint(0x2764)}:${characterInCell.character.health}`, index);
+    }
+
+    if ((activeUnit !== null) && allowedMovesForActiveUnit.includes(index)) {
+      this.gamePlay.setCursor(cursors.pointer);
+      this.gamePlay.selectCell(index, 'green');
+    } else {
+      this.gamePlay.setCursor(cursors.notallowed);
     }
 
   }
@@ -81,5 +112,6 @@ export default class GameController {
   onCellLeave(index) {
     // TODO: react to mouse leave
     this.gamePlay.hideCellTooltip(index);
+    this.gamePlay.deselectCell(index);
   }
 }
