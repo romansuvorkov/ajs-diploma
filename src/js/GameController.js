@@ -8,6 +8,7 @@ import Undead from './Undead';
 import Magician from './Magician';
 import PositionedCharacter from './PositionedCharacter';
 import allowedMoves from './allowedMoves';
+import allowedAttackCells from './allowedAttackCells';
 import cursors from './cursors';
 
 
@@ -18,6 +19,7 @@ const spawnZonePlayer = [0, 1, 8, 9, 16, 17, 24, 25, 32, 33, 40, 41, 48, 49, 56,
 const spawnZoneComputer = [6, 7, 14, 15, 22, 23, 30, 31, 38, 39, 46, 47, 54, 55, 62, 63];
 let activeUnit = null;
 let allowedMovesForActiveUnit;
+let allowedAttackCellsForActiveUnit;
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -55,6 +57,7 @@ export default class GameController {
         }
         activeUnit = charatersPositions[i];
         allowedMovesForActiveUnit = allowedMoves(activeUnit.character.type, activeUnit.position);
+        allowedAttackCellsForActiveUnit = allowedAttackCells(activeUnit.character.type, activeUnit.position);
         this.gamePlay.selectCell(index, 'yellow');
       } 
     }
@@ -75,11 +78,14 @@ export default class GameController {
 
     if (activeUnit !== null) {
       if (allowedMovesForActiveUnit.includes(index)) {
+          if (!this.gamePlay.cells[index].firstChild) {
           this.gamePlay.deselectCell(activeUnit.position);
           activeUnit.position = index;
           allowedMovesForActiveUnit = allowedMoves(activeUnit.character.type, activeUnit.position);
+          allowedAttackCellsForActiveUnit = allowedAttackCells(activeUnit.character.type, activeUnit.position);
           this.gamePlay.redrawPositions(charatersPositions);
           this.gamePlay.selectCell(index, 'yellow');
+          }
       }
     }
 
@@ -98,12 +104,88 @@ export default class GameController {
       this.gamePlay.showCellTooltip(`${String.fromCodePoint(0x1F396)}:${characterInCell.character.level}${String.fromCodePoint(0x2694)}:${characterInCell.character.attack}${String.fromCodePoint(0x1F6E1)}:${characterInCell.character.defence}${String.fromCodePoint(0x2764)}:${characterInCell.character.health}`, index);
     }
 
-    if ((activeUnit !== null) && allowedMovesForActiveUnit.includes(index)) {
-      this.gamePlay.setCursor(cursors.pointer);
-      this.gamePlay.selectCell(index, 'green');
+    // if ((activeUnit !== null) && allowedMovesForActiveUnit.includes(index)) {
+    //   if (!this.gamePlay.cells[index].firstChild) {
+    //     this.gamePlay.setCursor(cursors.pointer);
+    //     this.gamePlay.selectCell(index, 'green');
+    //   } else if (this.gamePlay.cells[index].firstChild.classList.contains('magician') ||
+    //             this.gamePlay.cells[index].firstChild.classList.contains('swordsman') ||
+    //             this.gamePlay.cells[index].firstChild.classList.contains('bowman')) { 
+    //     this.gamePlay.setCursor(cursors.pointer);
+    //   } else if (allowedAttackCellsForActiveUnit.includes(index)) { 
+    //       this.gamePlay.setCursor(cursors.crosshair);
+    //       this.gamePlay.selectCell(index, 'red');
+    //   }
+    // } else { 
+    //   this.gamePlay.setCursor(cursors.notallowed);
+    // }
+
+    if (activeUnit !== null) {
+      if (allowedMovesForActiveUnit.includes(index)) {
+        if (!this.gamePlay.cells[index].firstChild) {
+          this.gamePlay.setCursor(cursors.pointer);
+          this.gamePlay.selectCell(index, 'green');
+        } else if (this.gamePlay.cells[index].firstChild.classList.contains('magician') || this.gamePlay.cells[index].firstChild.classList.contains('swordsman') || this.gamePlay.cells[index].firstChild.classList.contains('bowman')) { 
+          this.gamePlay.setCursor(cursors.pointer);
+        } else if (allowedAttackCellsForActiveUnit.includes(index)) {
+          this.gamePlay.setCursor(cursors.crosshair);
+          this.gamePlay.selectCell(index, 'red');
+        }
+      } else if (allowedAttackCellsForActiveUnit.includes(index)) {
+        if (this.gamePlay.cells[index].firstChild) {
+          if (this.gamePlay.cells[index].firstChild.classList.contains('vampire') || this.gamePlay.cells[index].firstChild.classList.contains('undead') || this.gamePlay.cells[index].firstChild.classList.contains('daemon')) {
+            this.gamePlay.setCursor(cursors.crosshair);
+            this.gamePlay.selectCell(index, 'red');
+          }
+        }
+      } else if (!allowedMovesForActiveUnit.includes(index)) {
+          if (!this.gamePlay.cells[index].firstChild) {
+            this.gamePlay.setCursor(cursors.notallowed);
+          } else if (this.gamePlay.cells[index].firstChild) {
+            if (this.gamePlay.cells[index].firstChild.classList.contains('magician') || this.gamePlay.cells[index].firstChild.classList.contains('swordsman') || this.gamePlay.cells[index].firstChild.classList.contains('bowman')) {
+              this.gamePlay.setCursor(cursors.pointer);
+            }
+            if (this.gamePlay.cells[index].firstChild.classList.contains('vampire') || this.gamePlay.cells[index].firstChild.classList.contains('undead') || this.gamePlay.cells[index].firstChild.classList.contains('daemon')) {
+              if (allowedAttackCellsForActiveUnit.includes(index)) {
+                this.gamePlay.setCursor(cursors.crosshair);
+                this.gamePlay.selectCell(index, 'red');
+              } else {
+                this.gamePlay.setCursor(cursors.notallowed);
+              }
+            }
+          }
+      }
     } else {
-      this.gamePlay.setCursor(cursors.notallowed);
+      if (this.gamePlay.cells[index].firstChild) {
+        if (this.gamePlay.cells[index].firstChild.classList.contains('magician') || this.gamePlay.cells[index].firstChild.classList.contains('swordsman') || this.gamePlay.cells[index].firstChild.classList.contains('bowman')) {
+          this.gamePlay.setCursor(cursors.pointer);
+        } else {
+          this.gamePlay.setCursor(cursors.notallowed);
+        }
+      } else {
+        this.gamePlay.setCursor(cursors.notallowed);
+      }
     }
+
+
+
+    // if (characterInCell !== undefined) {
+    //   if (characterInCell.character.type === 'undead' || characterInCell.character.type === 'vampire' || characterInCell.character.type === 'daemon') {
+    //     this.gamePlay.setCursor(cursors.pointer);
+    //   } else {
+    //     this.gamePlay.setCursor(cursors.pointer);
+    //   }
+    // }
+
+    // if (characterInCell.character.type === 'undead' || characterInCell.character.type === 'vampire' || characterInCell.character.type === 'daemon') {
+    //   if (allowedAttackCellsForActiveUnit.includes(index)) {
+    //     this.gamePlay.setCursor(cursors.crosshair);
+    //     this.gamePlay.selectCell(index, 'red');
+    //   } else {
+    //     this.gamePlay.setCursor(cursors.notallowed);
+    //   }
+    // }
+
 
   }
 
@@ -113,5 +195,10 @@ export default class GameController {
     // TODO: react to mouse leave
     this.gamePlay.hideCellTooltip(index);
     this.gamePlay.deselectCell(index);
+    this.gamePlay.setCursor(cursors.auto);
+    if (activeUnit !== null) {
+      this.gamePlay.selectCell(activeUnit.position, 'yellow');  
+    }
+    
   }
 }

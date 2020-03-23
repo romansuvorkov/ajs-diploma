@@ -5,168 +5,151 @@ export default function allowedMoves(characterType, position) {
     const forbiddenBottomMove = [56, 57, 58, 59, 60, 61, 62, 63];
     const allowedMoves = [];
     let i = 0;
+    let radius = 0;
 
 
+    if (characterType === 'bowman' || characterType === 'vampire') {
+      radius = 3;
+    }
     if (characterType === 'swordsman' || characterType === 'undead') {
+      radius = 5;
+    }  
+    if (characterType === 'magician' || characterType === 'daemon') {
+      radius = 2;
+    }
         //right move
         i = 1;
-        while (i < 5) {
+        while (i < radius) {
             if (forbiddenRightMove.includes(position)) {
                 break;
             } else if (forbiddenRightMove.includes(position + i)) {
                 allowedMoves.push(position + i);
-                console.log(allowedMoves);
                 break;
             } else {
                 allowedMoves.push(position + i);
-                console.log(allowedMoves);
                 i++;
             }
         }
 
         //left move
         i = 1;
-        while (i < 5) {
+        while (i < radius) {
             if (forbiddenLeftMove.includes(position)) {
                 break;
             } else if (forbiddenLeftMove.includes(position - i)) {
                 allowedMoves.push(position - i);
-                console.log(allowedMoves);
                 break;
             } else {
                 allowedMoves.push(position - i);
-                console.log(allowedMoves);
                 i++;
             }
         }
 
         //top move
         i = 1;
-        while (i < 5) {
+        while (i < radius) {
             if (forbiddenTopMove.includes(position)) {
                 break;
             } else if (forbiddenTopMove.includes(position - i * 8)) {
                 allowedMoves.push(position - i * 8);
-                console.log(allowedMoves);
                 break;
             } else {
                 allowedMoves.push(position - i * 8);
-                console.log(allowedMoves);
                 i++;
             }
         }
 
         //bottom move
         i = 1;
-        while (i < 5) {
+        while (i < radius) {
             if (forbiddenBottomMove.includes(position)) {
                 break;
             } else if (forbiddenBottomMove.includes(position + i * 8)) {
                 allowedMoves.push(position + i * 8);
-                console.log(allowedMoves);
                 break;
             } else {
                 allowedMoves.push(position + i * 8);
-                console.log(allowedMoves);
                 i++;
             }
         }
 
         //diagonal move / to bottom
         i = 1;
-        while (i < 5) {
+        while (i < radius) {
             if (forbiddenBottomMove.includes(position)) {
                 break;
             } else if (forbiddenLeftMove.includes(position)) {
                 break; 
             } else if (forbiddenBottomMove.includes(position + i * 7)) {
                 allowedMoves.push(position + i * 7);
-                console.log(allowedMoves);
                 break;
             } else if (forbiddenLeftMove.includes(position + i * 7)) {
                 allowedMoves.push(position + i * 7);
-                console.log(allowedMoves);
                 break;
             } else {
                 allowedMoves.push(position + i * 7);
-                console.log(allowedMoves);
                 i++;
             }
         }
 
         //diagonal move / to top
         i = 1;
-        while (i < 5) {
+        while (i < radius) {
             if (forbiddenTopMove.includes(position)) {
                 break;
             } else if (forbiddenRightMove.includes(position)) {
                 break; 
             } else if (forbiddenTopMove.includes(position - i * 7)) {
                 allowedMoves.push(position - i * 7);
-                console.log(allowedMoves);
                 break;
             } else if (forbiddenRightMove.includes(position - i * 7)) {
                 allowedMoves.push(position - i * 7);
-                console.log(allowedMoves);
                 break;
             } else {
                 allowedMoves.push(position - i * 7);
-                console.log(allowedMoves);
                 i++;
             }
         }
 
         //diagonal move \ to bottom
         i = 1;
-        while (i < 5) {
+        while (i < radius) {
             if (forbiddenBottomMove.includes(position)) {
                 break;
             } else if (forbiddenRightMove.includes(position)) {
                 break; 
             } else if (forbiddenBottomMove.includes(position + i * 9)) {
                 allowedMoves.push(position + i * 9);
-                console.log(allowedMoves);
                 break;
             } else if (forbiddenRightMove.includes(position + i * 9)) {
                 allowedMoves.push(position + i * 9);
-                console.log(allowedMoves);
                 break;
             } else {
                 allowedMoves.push(position + i * 9);
-                console.log(allowedMoves);
                 i++;
             }
         }
 
         //diagonal move \ to top
         i = 1;
-        while (i < 5) {
+        while (i < radius) {
             if (forbiddenTopMove.includes(position)) {
                 break;
             } else if (forbiddenLeftMove.includes(position)) {
                 break; 
             } else if (forbiddenTopMove.includes(position - i * 9)) {
                 allowedMoves.push(position - i * 9);
-                console.log(allowedMoves);
                 break;
             } else if (forbiddenLeftMove.includes(position - i * 9)) {
                 allowedMoves.push(position - i * 9);
-                console.log(allowedMoves);
                 break;
             } else {
                 allowedMoves.push(position - i * 9);
-                console.log(allowedMoves);
                 i++;
             }
         }
 
-
-
-
-    }
-
     return allowedMoves;
 
 }
-
       
