@@ -13,7 +13,7 @@ export default class Character {
 
   levelUp() {
     this.attack = Math.floor(Math.max(this.attack, this.attack * (1.8 - this.health / 100)));
-    
+
     if (this.health < 20) {
       this.health += 80;
     } else {
@@ -22,7 +22,6 @@ export default class Character {
     if (this.level !== 4) {
       this.level += 1;
     }
-
   }
 
   getDamage(points) {
@@ -40,9 +39,8 @@ export default class Character {
   }
 
   get attack() {
-    let attack = this.newattack;
+    const attack = this.newattack;
 
     return attack;
   }
-
 }

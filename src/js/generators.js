@@ -12,7 +12,7 @@ export function* characterGenerator(allowedTypes, maxLevel) {
   // TODO: write logic here
   while (true) {
     const newUnitTypeNumb = Math.floor(Math.random() * allowedTypes.length);
-    const unitLevel = Math.floor(Math.random() * (maxLevel + 1));
+    const unitLevel = Math.max(1, Math.round(Math.random() * maxLevel));
 
     const newUnit = new allowedTypes[newUnitTypeNumb](unitLevel, allowedTypes[newUnitTypeNumb]);
     yield newUnit;
@@ -34,9 +34,9 @@ export function generateTeam(allowedTypes, maxLevel, characterCount) {
 
 export function* positionNumberGenerator(arrayAllowedNumbers) {
   while (true) {
-  const randomNumber = Math.floor(Math.random() * arrayAllowedNumbers.length);
-  const spawnNumberPosition = arrayAllowedNumbers[randomNumber];
-  yield spawnNumberPosition;
+    const randomNumber = Math.floor(Math.random() * arrayAllowedNumbers.length);
+    const spawnNumberPosition = arrayAllowedNumbers[randomNumber];
+    yield spawnNumberPosition;
   }
 }
 
@@ -53,5 +53,4 @@ export function generatePosition(arrayAllowedNumbers, teamCount, arrayWithCharac
   }
 
   return arrayWithPositions;
-
 }
