@@ -15,7 +15,6 @@ import { computerMoveCalc, computerCharacterChoose } from './computerLogic';
 
 let PlayerTeam = [];
 let ComputerTeam = [];
-const charatersPositions = [];
 const spawnZonePlayer = [0, 1, 8, 9, 16, 17, 24, 25, 32, 33, 40, 41, 48, 49, 56, 57];
 const spawnZoneComputer = [6, 7, 14, 15, 22, 23, 30, 31, 38, 39, 46, 47, 54, 55, 62, 63];
 let activeUnit = null;
@@ -59,6 +58,8 @@ export default class GameController {
   }
 
   computerMove() {
+    this.gamePlay.deselectCell(activeUnit.position);
+    activeUnit = null;
     const computerActiveUnit = computerCharacterChoose(this.computerTeam);
     const allowedMovesForActiveComputerUnit = allowedMoves(computerActiveUnit.character.type, computerActiveUnit.position);
     const allowedAttackCellsForActiveComputerUnit = allowedAttackCells(computerActiveUnit.character.type, computerActiveUnit.position);
@@ -90,10 +91,11 @@ export default class GameController {
         allowedMovesForActiveUnit = allowedMoves(activeUnit.character.type, activeUnit.position);
         allowedAttackCellsForActiveUnit = allowedAttackCells(activeUnit.character.type, activeUnit.position);
         this.gamePlay.selectCell(index, 'yellow');
-      } else if (activeUnit === null) {
-        GamePlay.showError('Можно выбирать только персонажей Bowman, Magician, Swordsman');
-      }
+      }    
+    } 
 
+    if (activeUnit === null) {
+      GamePlay.showError('Можно выбрать только Bowman, Magician or Swordsman');
     }
 
     if (activeUnit !== null) {
@@ -104,7 +106,6 @@ export default class GameController {
           allowedMovesForActiveUnit = allowedMoves(activeUnit.character.type, activeUnit.position);
           allowedAttackCellsForActiveUnit = allowedAttackCells(activeUnit.character.type, activeUnit.position);
           this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
-          this.gamePlay.selectCell(index, 'yellow');
           this.computerMove();
         } else if (this.gamePlay.cells[index].firstChild && (this.gamePlay.cells[index].firstChild.classList.contains('vampire') || this.gamePlay.cells[index].firstChild.classList.contains('undead') || this.gamePlay.cells[index].firstChild.classList.contains('daemon'))) {
           if (allowedAttackCellsForActiveUnit.includes(index)) {
@@ -119,8 +120,11 @@ export default class GameController {
               this.computerTeam.splice(this.computerTeam.indexOf(characterInCell), 1);
               this.gamePlay.deselectCell(index);
             }
-            this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
-            this.computerMove();
+            // this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+            this.gamePlay.showDamage(index, activeUnit.character.attack).then(() => {
+              this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+              this.computerMove();
+            });
           }
         }
       } else if (allowedAttackCellsForActiveUnit.includes(index)) {
@@ -135,12 +139,17 @@ export default class GameController {
           this.computerTeam.splice(this.computerTeam.indexOf(characterInCell), 1);
           this.gamePlay.deselectCell(index);
         }
-        this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
-        this.computerMove();
+        // this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+        this.gamePlay.showDamage(index, activeUnit.character.attack).then(() => {
+          this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+          this.computerMove();
+        });
+
       } else if (!this.gamePlay.cells[index].firstChild) {
         GamePlay.showError('Недопустимое действие');
       }
     }
+
   }
 
 
