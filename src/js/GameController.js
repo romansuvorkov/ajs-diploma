@@ -25,7 +25,8 @@ export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
-    this.gameState = new GameState();
+    this.gameState = GameState;
+    this.gameState.turnToMove = 0;
     this.playerTeam = [];
     this.computerTeam = [];
   }
@@ -35,22 +36,14 @@ export default class GameController {
     // TODO: load saved stated from stateService
     this.gamePlay.drawUi('prairie');
 
-    const Team1 = generateTeam([Swordsman, Bowman], 1, 2);
-    const Team2 = generateTeam([Daemon, Vampire, Undead], 1, 2);
-    PlayerTeam = generatePosition(spawnZonePlayer, Team1.teamCount, Team1.teamMembers, []);
-    ComputerTeam = generatePosition(spawnZoneComputer, Team2.teamCount, Team2.teamMembers, []);
+    const TeamHuman = generateTeam([Swordsman, Bowman], 1, 2);
+    const TeamUndead = generateTeam([Daemon, Vampire, Undead], 1, 2);
+    PlayerTeam = generatePosition(spawnZonePlayer, TeamHuman.teamCount, TeamHuman.teamMembers, []);
+    ComputerTeam = generatePosition(spawnZoneComputer, TeamUndead.teamCount, TeamUndead.teamMembers, []);
     this.playerTeam = PlayerTeam;
     this.computerTeam = ComputerTeam;
-    // this.playerTeam = generateTeam([Swordsman, Bowman], 1, 2);
-    // this.computerTeam = generateTeam([Daemon, Vampire, Undead], 1, 2);
-    // charatersPositions = [...PlayerTeam, ...ComputerTeam];
-    // this.gamePlay.redrawPositions(charatersPositions);
 
     this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
-
-
-    // this.gamePlay.redrawPositions(charatersPositions);
-
 
     this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
@@ -58,26 +51,41 @@ export default class GameController {
   }
 
   computerMove() {
-    this.gamePlay.deselectCell(activeUnit.position);
-    activeUnit = null;
-    const computerActiveUnit = computerCharacterChoose(this.computerTeam);
-    const allowedMovesForActiveComputerUnit = allowedMoves(computerActiveUnit.character.type, computerActiveUnit.position);
-    const allowedAttackCellsForActiveComputerUnit = allowedAttackCells(computerActiveUnit.character.type, computerActiveUnit.position);
-    let availableForAttackUnit = false;
-    this.playerTeam.forEach((element) => {
-      if (allowedAttackCellsForActiveComputerUnit.includes(element.position)) {
-        availableForAttackUnit = true;
-        element.character.getDamage(computerActiveUnit.character.attack);
-        if (element.character.health === 0) {
-          this.playerTeam.splice(this.playerTeam.indexOf(element), 1);
+    console.log(this.gameState.turnToMove);
+    if (this.gameState.turnToMove === 1) {
+      this.gamePlay.deselectCell(activeUnit.position);
+      activeUnit = null;
+      const computerActiveUnit = computerCharacterChoose(this.computerTeam);
+      const allowedMovesForActiveComputerUnit = allowedMoves(computerActiveUnit.character.type, computerActiveUnit.position);
+      const allowedAttackCellsForActiveComputerUnit = allowedAttackCells(computerActiveUnit.character.type, computerActiveUnit.position);
+      let availableForAttackUnit = null;
+      this.playerTeam.forEach((element) => {
+        if (allowedAttackCellsForActiveComputerUnit.includes(element.position)) {
+          availableForAttackUnit = element;
+          if (element.character.health === 0) {
+            this.playerTeam.splice(this.playerTeam.indexOf(element), 1);
+          }
         }
+      });
+      if (availableForAttackUnit === null) {
+        const targetMove = computerMoveCalc(allowedMovesForActiveComputerUnit);
+        computerActiveUnit.position = targetMove;
+        console.log("move");
+      } else {
+        availableForAttackUnit.character.getDamage(computerActiveUnit.character.attack);
+        this.gamePlay.showDamage(availableForAttackUnit.position, computerActiveUnit.character.attack).then(() => {
+          console.log('Work');
+          this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+        });
       }
-    });
-    if (!availableForAttackUnit) {
-      const targetMove = computerMoveCalc(allowedMovesForActiveComputerUnit);
-      computerActiveUnit.position = targetMove;
+      this.gameState.nextMove();
+    } else {
+      GamePlay.showError('Очередь ходить другой команды');
     }
-    this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+  }
+
+  nextLevel() {
+    
   }
 
   onCellClick(index) {
@@ -106,6 +114,7 @@ export default class GameController {
           allowedMovesForActiveUnit = allowedMoves(activeUnit.character.type, activeUnit.position);
           allowedAttackCellsForActiveUnit = allowedAttackCells(activeUnit.character.type, activeUnit.position);
           this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+          this.gameState.nextMove();
           this.computerMove();
         } else if (this.gamePlay.cells[index].firstChild && (this.gamePlay.cells[index].firstChild.classList.contains('vampire') || this.gamePlay.cells[index].firstChild.classList.contains('undead') || this.gamePlay.cells[index].firstChild.classList.contains('daemon'))) {
           if (allowedAttackCellsForActiveUnit.includes(index)) {
@@ -120,9 +129,9 @@ export default class GameController {
               this.computerTeam.splice(this.computerTeam.indexOf(characterInCell), 1);
               this.gamePlay.deselectCell(index);
             }
-            // this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
             this.gamePlay.showDamage(index, activeUnit.character.attack).then(() => {
               this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+              this.gameState.nextMove();
               this.computerMove();
             });
           }
@@ -139,9 +148,9 @@ export default class GameController {
           this.computerTeam.splice(this.computerTeam.indexOf(characterInCell), 1);
           this.gamePlay.deselectCell(index);
         }
-        // this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
         this.gamePlay.showDamage(index, activeUnit.character.attack).then(() => {
           this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+          this.gameState.nextMove();
           this.computerMove();
         });
 
