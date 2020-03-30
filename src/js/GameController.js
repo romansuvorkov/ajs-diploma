@@ -25,7 +25,6 @@ export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
-    this.gameState = new GameState();
     this.playerTeam = [];
     this.computerTeam = [];
     this.levelCount = 0;
@@ -51,14 +50,12 @@ export default class GameController {
     this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
     this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
-    this.gamePlay.addNewGameListener(this.NewGame.bind(this));
-    this.gamePlay.addLoadGameListener(this.LoadGame.bind(this));
-    this.gamePlay.addSaveGameListener(this.SaveGame.bind(this));
+    this.gamePlay.addNewGameListener(this.newGame.bind(this));
+    this.gamePlay.addLoadGameListener(this.loadGame.bind(this));
+    this.gamePlay.addSaveGameListener(this.saveGame.bind(this));
   }
 
-  NewGame() {
-    // this.gamePlay.deselectCell(activeUnit.position);
-    // this.gamePlay.drawUi(themes[0]);
+  newGame() {
     activeUnit = null;
     allowedMovesForActiveUnit = null;
     allowedAttackCellsForActiveUnit = null;
@@ -72,12 +69,28 @@ export default class GameController {
     this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
   }
 
-  LoadGame() {
-
+  loadGame() {
+    const load = this.stateService.load();
+    this.levelCount = load.levelCount;
+    this.turnToMove = load.turnToMove;
+    this.playerTeam = load.playerTeam;
+    this.computerTeam = load.computerTeam;
+    this.gamePlay.drawUi(themes[this.levelCount]);
+    this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+    console.log(this.turnToMove);
+    if (this.turnToMove === 1) {
+      this.computerMove(); 
+    }
   }
 
-  SaveGame() {
-
+  saveGame() {
+    const save = {
+      levelCount: this.levelCount,
+      turnToMove: this.turnToMove,
+      playerTeam: this.playerTeam,
+      computerTeam: this.computerTeam,
+    };
+    this.stateService.save(GameState.from(save));
   }
 
   nextMove() {
@@ -115,6 +128,8 @@ export default class GameController {
         computerActiveUnit.position = targetMove;
         this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
       } else {
+        console.log(availableForAttackUnit);
+        console.log(computerActiveUnit);
         availableForAttackUnit.character.getDamage(computerActiveUnit.character.attack);
         this.gamePlay.showDamage(availableForAttackUnit.position, computerActiveUnit.character.attack).then(() => {
           this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
