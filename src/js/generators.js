@@ -40,14 +40,14 @@ export function* positionNumberGenerator(arrayAllowedNumbers) {
   }
 }
 
-export function generatePosition(arrayAllowedNumbers, teamCount, arrayWithCharacters, arrayWithPositions) {
+export function generatePosition(arrayAllowedNumbers, teamCount, arrayWithChar, arrayWithPositions) {
   const numbersArrayForSpawn = [...arrayAllowedNumbers];
   const numberGenerator = positionNumberGenerator(numbersArrayForSpawn);
 
   for (let i = 0; i < teamCount; i += 1) {
     const generatedNumb = numberGenerator.next().value;
     const spawnNumb = numbersArrayForSpawn.indexOf(generatedNumb);
-    const characterWithPosition = new PositionedCharacter(arrayWithCharacters[i], generatedNumb);
+    const characterWithPosition = new PositionedCharacter(arrayWithChar[i], generatedNumb);
     arrayWithPositions.push(characterWithPosition);
     numbersArrayForSpawn.splice(spawnNumb, 1);
   }

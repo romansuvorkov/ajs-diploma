@@ -3,7 +3,7 @@ export default function allowedMoves(characterType, position) {
   const forbiddenRightMove = [7, 15, 23, 31, 39, 47, 55, 63];
   const forbiddenTopMove = [0, 1, 2, 3, 4, 5, 6, 7];
   const forbiddenBottomMove = [56, 57, 58, 59, 60, 61, 62, 63];
-  const allowedMoves = [];
+  const allowedMovesCells = [];
   let i = 0;
   let radius = 0;
 
@@ -23,10 +23,10 @@ export default function allowedMoves(characterType, position) {
     if (forbiddenRightMove.includes(position)) {
       break;
     } else if (forbiddenRightMove.includes(position + i)) {
-      allowedMoves.push(position + i);
+      allowedMovesCells.push(position + i);
       break;
     } else {
-      allowedMoves.push(position + i);
+      allowedMovesCells.push(position + i);
       i += 1;
     }
   }
@@ -37,10 +37,10 @@ export default function allowedMoves(characterType, position) {
     if (forbiddenLeftMove.includes(position)) {
       break;
     } else if (forbiddenLeftMove.includes(position - i)) {
-      allowedMoves.push(position - i);
+      allowedMovesCells.push(position - i);
       break;
     } else {
-      allowedMoves.push(position - i);
+      allowedMovesCells.push(position - i);
       i += 1;
     }
   }
@@ -51,10 +51,10 @@ export default function allowedMoves(characterType, position) {
     if (forbiddenTopMove.includes(position)) {
       break;
     } else if (forbiddenTopMove.includes(position - i * 8)) {
-      allowedMoves.push(position - i * 8);
+      allowedMovesCells.push(position - i * 8);
       break;
     } else {
-      allowedMoves.push(position - i * 8);
+      allowedMovesCells.push(position - i * 8);
       i += 1;
     }
   }
@@ -65,10 +65,10 @@ export default function allowedMoves(characterType, position) {
     if (forbiddenBottomMove.includes(position)) {
       break;
     } else if (forbiddenBottomMove.includes(position + i * 8)) {
-      allowedMoves.push(position + i * 8);
+      allowedMovesCells.push(position + i * 8);
       break;
     } else {
-      allowedMoves.push(position + i * 8);
+      allowedMovesCells.push(position + i * 8);
       i += 1;
     }
   }
@@ -81,13 +81,13 @@ export default function allowedMoves(characterType, position) {
     } else if (forbiddenLeftMove.includes(position)) {
       break;
     } else if (forbiddenBottomMove.includes(position + i * 7)) {
-      allowedMoves.push(position + i * 7);
+      allowedMovesCells.push(position + i * 7);
       break;
     } else if (forbiddenLeftMove.includes(position + i * 7)) {
-      allowedMoves.push(position + i * 7);
+      allowedMovesCells.push(position + i * 7);
       break;
     } else {
-      allowedMoves.push(position + i * 7);
+      allowedMovesCells.push(position + i * 7);
       i += 1;
     }
   }
@@ -100,13 +100,13 @@ export default function allowedMoves(characterType, position) {
     } else if (forbiddenRightMove.includes(position)) {
       break;
     } else if (forbiddenTopMove.includes(position - i * 7)) {
-      allowedMoves.push(position - i * 7);
+      allowedMovesCells.push(position - i * 7);
       break;
     } else if (forbiddenRightMove.includes(position - i * 7)) {
-      allowedMoves.push(position - i * 7);
+      allowedMovesCells.push(position - i * 7);
       break;
     } else {
-      allowedMoves.push(position - i * 7);
+      allowedMovesCells.push(position - i * 7);
       i += 1;
     }
   }
@@ -119,13 +119,13 @@ export default function allowedMoves(characterType, position) {
     } else if (forbiddenRightMove.includes(position)) {
       break;
     } else if (forbiddenBottomMove.includes(position + i * 9)) {
-      allowedMoves.push(position + i * 9);
+      allowedMovesCells.push(position + i * 9);
       break;
     } else if (forbiddenRightMove.includes(position + i * 9)) {
-      allowedMoves.push(position + i * 9);
+      allowedMovesCells.push(position + i * 9);
       break;
     } else {
-      allowedMoves.push(position + i * 9);
+      allowedMovesCells.push(position + i * 9);
       i += 1;
     }
   }
@@ -138,16 +138,16 @@ export default function allowedMoves(characterType, position) {
     } else if (forbiddenLeftMove.includes(position)) {
       break;
     } else if (forbiddenTopMove.includes(position - i * 9)) {
-      allowedMoves.push(position - i * 9);
+      allowedMovesCells.push(position - i * 9);
       break;
     } else if (forbiddenLeftMove.includes(position - i * 9)) {
-      allowedMoves.push(position - i * 9);
+      allowedMovesCells.push(position - i * 9);
       break;
     } else {
-      allowedMoves.push(position - i * 9);
+      allowedMovesCells.push(position - i * 9);
       i += 1;
     }
   }
 
-  return allowedMoves;
+  return allowedMovesCells;
 }

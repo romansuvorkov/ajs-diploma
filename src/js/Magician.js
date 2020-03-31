@@ -2,7 +2,7 @@ import Character from './Character';
 
 class Magician extends Character {
   constructor(level, type) {
-    if (type !== 'Magician') {
+    if (type !== Magician) {
       throw new Error('Ошибка. Допускаются только персонажи типа: Magician');
     }
     const unitType = 'magician';

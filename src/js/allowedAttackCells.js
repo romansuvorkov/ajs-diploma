@@ -26,7 +26,7 @@ export default function allowedAttackCells(character, position) {
       break;
     } else {
       allowedAttackField.push(position + i);
-      i++;
+      i += 1;
     }
   }
 
@@ -59,7 +59,7 @@ export default function allowedAttackCells(character, position) {
           break;
         } else {
           allowedAttackField.push((position - 8 * i) - y);
-          y++;
+          y += 1;
         }
       }
     }
@@ -82,7 +82,7 @@ export default function allowedAttackCells(character, position) {
           break;
         } else {
           allowedAttackField.push((position - 8 * i) + y);
-          y++;
+          y += 1;
         }
       }
     }
@@ -106,7 +106,7 @@ export default function allowedAttackCells(character, position) {
           break;
         } else {
           allowedAttackField.push((position + 8 * i) + y);
-          y++;
+          y += 1;
         }
       }
     }
@@ -129,7 +129,7 @@ export default function allowedAttackCells(character, position) {
           break;
         } else {
           allowedAttackField.push((position + 8 * i) - y);
-          y++;
+          y += 1;
         }
       }
     }
@@ -144,7 +144,7 @@ export default function allowedAttackCells(character, position) {
       break;
     } else {
       allowedAttackField.push(position + 8 * i);
-      i++;
+      i += 1;
     }
   }
 

@@ -7,7 +7,6 @@ import Daemon from './Daemon';
 import Vampire from './Vampire';
 import Undead from './Undead';
 import Magician from './Magician';
-import PositionedCharacter from './PositionedCharacter';
 import allowedMoves from './allowedMoves';
 import allowedAttackCells from './allowedAttackCells';
 import cursors from './cursors';
@@ -29,23 +28,22 @@ export default class GameController {
     this.computerTeam = [];
     this.levelCount = 0;
     this.turnToMove = 0;
+    this.statistic = 0;
+  }
+
+  getStat() {
+    let unitsHealth = 0;
+    this.playerTeam.forEach((unit) => {
+      unitsHealth += unit.character.health;
+    });
+    this.statistic += unitsHealth;
+    console.log(`Статистика ${this.statistic}`);
   }
 
   init() {
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
     this.gamePlay.drawUi(themes[0]);
-    // activeUnit = null;
-    // allowedMovesForActiveUnit = null;
-    // allowedAttackCellsForActiveUnit = null;
-    // const TeamHuman = generateTeam([Swordsman, Bowman], 1, 2);
-    // const TeamUndead = generateTeam([Daemon, Vampire, Undead], 1, 2);
-    // let PlayerTeam = generatePosition(spawnZonePlayer, TeamHuman.teamCount, TeamHuman.teamMembers, []);
-    // let ComputerTeam = generatePosition(spawnZoneComputer, TeamUndead.teamCount, TeamUndead.teamMembers, []);
-    // this.playerTeam = PlayerTeam;
-    // this.computerTeam = ComputerTeam;
-
-    // this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
 
     this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
@@ -61,8 +59,8 @@ export default class GameController {
     allowedAttackCellsForActiveUnit = null;
     const TeamHuman = generateTeam([Swordsman, Bowman], 1, 2);
     const TeamUndead = generateTeam([Daemon, Vampire, Undead], 1, 2);
-    let PlayerTeam = generatePosition(spawnZonePlayer, TeamHuman.teamCount, TeamHuman.teamMembers, []);
-    let ComputerTeam = generatePosition(spawnZoneComputer, TeamUndead.teamCount, TeamUndead.teamMembers, []);
+    const PlayerTeam = generatePosition(spawnZonePlayer, TeamHuman.teamCount, TeamHuman.teamMembers, []);
+    const ComputerTeam = generatePosition(spawnZoneComputer, TeamUndead.teamCount, TeamUndead.teamMembers, []);
     this.playerTeam = PlayerTeam;
     this.computerTeam = ComputerTeam;
 
@@ -77,9 +75,9 @@ export default class GameController {
     this.computerTeam = load.computerTeam;
     this.gamePlay.drawUi(themes[this.levelCount]);
     this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
-    console.log(this.turnToMove);
+    this.statistic = load.stat;
     if (this.turnToMove === 1) {
-      this.computerMove(); 
+      this.computerMove();
     }
   }
 
@@ -89,6 +87,7 @@ export default class GameController {
       turnToMove: this.turnToMove,
       playerTeam: this.playerTeam,
       computerTeam: this.computerTeam,
+      stat: this.statistic,
     };
     this.stateService.save(GameState.from(save));
   }
@@ -142,41 +141,41 @@ export default class GameController {
   }
 
   nextLevel() {
+    this.getStat();
     this.turnToMove = 0;
     this.levelCount += 1;
     if (this.levelCount >= themes.length) {
-      endGame();
+      this.endGame();
     } else {
-    this.gamePlay.drawUi(themes[this.levelCount]);
-    let newUnitQuantity = null;
-    if (this.levelCount > 2) {
-      newUnitQuantity = 2;
-    } else {
-      newUnitQuantity = this.levelCount;
-    }
-    let TeamHuman = generateTeam([Swordsman, Bowman, Magician], this.levelCount, newUnitQuantity);
-    this.playerTeam.forEach((element) => {
-      element.character.levelUp();
-      TeamHuman.teamMembers.push(element.character);
-      TeamHuman.teamCount += 1;
-    });
-    let TeamUndead = generateTeam([Daemon, Vampire, Undead], (this.levelCount + 1), TeamHuman.teamCount);
-    let PlayerTeam = generatePosition(spawnZonePlayer, TeamHuman.teamCount, TeamHuman.teamMembers, []);
-    let ComputerTeam = generatePosition(spawnZoneComputer, TeamUndead.teamCount, TeamUndead.teamMembers, []);
-    this.playerTeam = PlayerTeam;
-    this.computerTeam = ComputerTeam;
-    this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+      this.gamePlay.drawUi(themes[this.levelCount]);
+      let newUnitQuantity = null;
+      if (this.levelCount > 2) {
+        newUnitQuantity = 2;
+      } else {
+        newUnitQuantity = this.levelCount;
+      }
+      const TeamHuman = generateTeam([Swordsman, Bowman, Magician], this.levelCount, newUnitQuantity);
+      this.playerTeam.forEach((element) => {
+        element.character.levelUp();
+        TeamHuman.teamMembers.push(element.character);
+        TeamHuman.teamCount += 1;
+      });
+      const TeamUndead = generateTeam([Daemon, Vampire, Undead], (this.levelCount + 1), TeamHuman.teamCount);
+      const PlayerTeam = generatePosition(spawnZonePlayer, TeamHuman.teamCount, TeamHuman.teamMembers, []);
+      const ComputerTeam = generatePosition(spawnZoneComputer, TeamUndead.teamCount, TeamUndead.teamMembers, []);
+      this.playerTeam = PlayerTeam;
+      this.computerTeam = ComputerTeam;
+      this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
     }
   }
 
   endGame() {
-
+    alert('Вы победили');
   }
 
   onCellClick(index) {
     // TODO: react to click
     if (this.turnToMove === 0) {
-
       for (let i = 0; i < this.playerTeam.length; i += 1) {
         if (this.playerTeam[i].position === index) {
           if (activeUnit !== null) {
@@ -186,8 +185,8 @@ export default class GameController {
           allowedMovesForActiveUnit = allowedMoves(activeUnit.character.type, activeUnit.position);
           allowedAttackCellsForActiveUnit = allowedAttackCells(activeUnit.character.type, activeUnit.position);
           this.gamePlay.selectCell(index, 'yellow');
-        }    
-      } 
+        }
+      }
 
       if (activeUnit === null) {
         GamePlay.showError('Можно выбрать только Bowman, Magician or Swordsman');
@@ -226,28 +225,27 @@ export default class GameController {
               });
             }
           }
-
         } else if (allowedAttackCellsForActiveUnit.includes(index)) {
           if (this.gamePlay.cells[index].firstChild && (this.gamePlay.cells[index].firstChild.classList.contains('vampire') || this.gamePlay.cells[index].firstChild.classList.contains('undead') || this.gamePlay.cells[index].firstChild.classList.contains('daemon'))) {
-              let characterInCell;
-              this.computerTeam.forEach((element) => {
-                if (element.position === index) {
-                  characterInCell = element;
-                }
-              });
-              characterInCell.character.getDamage(activeUnit.character.attack);
-              if (characterInCell.character.health === 0) {
-                this.computerTeam.splice(this.computerTeam.indexOf(characterInCell), 1);
-                this.gamePlay.deselectCell(index);
-                if (this.computerTeam.length === 0) {
-                  this.nextLevel();
-                }
+            let characterInCell;
+            this.computerTeam.forEach((element) => {
+              if (element.position === index) {
+                characterInCell = element;
               }
-              this.gamePlay.showDamage(index, activeUnit.character.attack).then(() => {
-                this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
-                this.nextMove();
-                this.computerMove();
-              });
+            });
+            characterInCell.character.getDamage(activeUnit.character.attack);
+            if (characterInCell.character.health === 0) {
+              this.computerTeam.splice(this.computerTeam.indexOf(characterInCell), 1);
+              this.gamePlay.deselectCell(index);
+              if (this.computerTeam.length === 0) {
+                this.nextLevel();
+              }
+            }
+            this.gamePlay.showDamage(index, activeUnit.character.attack).then(() => {
+              this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+              this.nextMove();
+              this.computerMove();
+            });
           }
         } else if (!this.gamePlay.cells[index].firstChild) {
           GamePlay.showError('Недопустимое действие');
@@ -258,7 +256,6 @@ export default class GameController {
 
 
   onCellEnter(index) {
-
     let characterInCell;
     [...this.playerTeam, ...this.computerTeam].forEach((element) => {
       if (element.position === index) {
