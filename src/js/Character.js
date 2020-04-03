@@ -23,24 +23,4 @@ export default class Character {
       this.level += 1;
     }
   }
-
-  getDamage(points) {
-    const damagePoints = Math.floor(Math.max(points - this.defence, points * 0.1));
-    if (this.health > damagePoints) {
-      this.health -= damagePoints;
-    } else {
-      this.health = 0;
-    }
-  }
-
-  set attack(value) {
-    this.newattack = value;
-    return this.newattack;
-  }
-
-  get attack() {
-    const attack = this.newattack;
-
-    return attack;
-  }
 }

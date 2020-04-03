@@ -37,7 +37,6 @@ export default class GameController {
       unitsHealth += unit.character.health;
     });
     this.statistic += unitsHealth;
-    console.log(`Статистика ${this.statistic}`);
   }
 
   init() {
@@ -117,9 +116,6 @@ export default class GameController {
       this.playerTeam.forEach((element) => {
         if (allowedAttackCellsForActiveComputerUnit.includes(element.position)) {
           availableForAttackUnit = element;
-          if (element.character.health === 0) {
-            this.playerTeam.splice(this.playerTeam.indexOf(element), 1);
-          }
         }
       });
       if (availableForAttackUnit === null) {
@@ -127,12 +123,16 @@ export default class GameController {
         computerActiveUnit.position = targetMove;
         this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
       } else {
-        console.log(availableForAttackUnit);
-        console.log(computerActiveUnit);
-        availableForAttackUnit.character.getDamage(computerActiveUnit.character.attack);
+        this.getDamage(availableForAttackUnit.character, computerActiveUnit.character.attack);
+        if (availableForAttackUnit.character.health === 0) {
+          this.playerTeam.splice(this.playerTeam.indexOf(availableForAttackUnit), 1);
+        }
         this.gamePlay.showDamage(availableForAttackUnit.position, computerActiveUnit.character.attack).then(() => {
           this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
         });
+        if (this.playerTeam.length === 0) {
+          this.looseGame();
+        }
       }
       this.nextMove();
     } else {
@@ -170,7 +170,20 @@ export default class GameController {
   }
 
   endGame() {
-    alert('Вы победили');
+    alert(`Вы победили, Ваш счет ${this.statistic}`);
+  }
+
+  looseGame() {
+    alert('Вы проиграли');
+  }
+
+  getDamage(character, points) {
+    const damagePoints = Math.floor(Math.max(points - character.defence, points * 0.1));
+    if (character.health > damagePoints) {
+      character.health -= damagePoints;
+    } else {
+      character.health = 0;
+    }
   }
 
   onCellClick(index) {
@@ -210,7 +223,7 @@ export default class GameController {
                   characterInCell = element;
                 }
               });
-              characterInCell.character.getDamage(activeUnit.character.attack);
+              this.getDamage(characterInCell.character, activeUnit.character.attack);
               if (characterInCell.character.health === 0) {
                 this.computerTeam.splice(this.computerTeam.indexOf(characterInCell), 1);
                 this.gamePlay.deselectCell(index);
@@ -233,7 +246,8 @@ export default class GameController {
                 characterInCell = element;
               }
             });
-            characterInCell.character.getDamage(activeUnit.character.attack);
+
+            this.getDamage(characterInCell.character, activeUnit.character.attack);
             if (characterInCell.character.health === 0) {
               this.computerTeam.splice(this.computerTeam.indexOf(characterInCell), 1);
               this.gamePlay.deselectCell(index);
