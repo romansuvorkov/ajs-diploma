@@ -6,19 +6,37 @@ const gamePlay = new GamePlay();
 const stateService = new GameStateService(localStorage);
 const gameController = new GameController(gamePlay, stateService);
 
-jest.mock('../GameController');
+jest.mock('../GameStateService');
+jest.mock('../GamePlay');
 const save = {
-  levelCount: 0,
+  levelCount: 1,
   turnToMove: 0,
   playerTeam: [],
   computerTeam: [],
-  stat: 0,
+  stat: 123,
 };
 
 beforeEach(() => {
   jest.resetAllMocks();
 });
 
-test('load data', () => {
-  gameController.loadGame().mockReturnValue(save);
+test('Загрузка', () => {
+  gameController.stateService.load.mockReturnValue(save);
+  gameController.loadGame();
+  const recieved = {};
+  recieved.levelCount = gameController.levelCount;
+  recieved.turnToMove = gameController.turnToMove;
+  recieved.playerTeam = gameController.playerTeam;
+  recieved.computerTeam = gameController.computerTeam;
+  recieved.stat = gameController.statistic;
+  expect(recieved).toEqual(save);
+});
+
+
+test('Ошибка', () => {
+  const recieved = new Error('Invalid state');
+  gameController.stateService.load.mockReturnValue(recieved);
+  expect(() => {
+    gameController.loadGame();
+  }).toThrow();
 });

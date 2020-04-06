@@ -40,7 +40,10 @@ export function* positionNumberGenerator(arrayAllowedNumbers) {
   }
 }
 
-export function generatePosition(arrayAllowedNumbers, teamCount, arrayWithChar, arrayWithPositions) {
+export function generatePosition(arrayAllowedNumbers,
+  teamCount,
+  arrayWithChar,
+  arrayWithPositions) {
   const numbersArrayForSpawn = [...arrayAllowedNumbers];
   const numberGenerator = positionNumberGenerator(numbersArrayForSpawn);
 

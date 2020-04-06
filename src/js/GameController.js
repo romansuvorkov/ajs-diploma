@@ -58,8 +58,14 @@ export default class GameController {
     allowedAttackCellsForActiveUnit = null;
     const TeamHuman = generateTeam([Swordsman, Bowman], 1, 2);
     const TeamUndead = generateTeam([Daemon, Vampire, Undead], 1, 2);
-    const PlayerTeam = generatePosition(spawnZonePlayer, TeamHuman.teamCount, TeamHuman.teamMembers, []);
-    const ComputerTeam = generatePosition(spawnZoneComputer, TeamUndead.teamCount, TeamUndead.teamMembers, []);
+    const PlayerTeam = generatePosition(spawnZonePlayer,
+      TeamHuman.teamCount,
+      TeamHuman.teamMembers,
+      []);
+    const ComputerTeam = generatePosition(spawnZoneComputer,
+      TeamUndead.teamCount,
+      TeamUndead.teamMembers,
+      []);
     this.playerTeam = PlayerTeam;
     this.computerTeam = ComputerTeam;
 
@@ -68,15 +74,19 @@ export default class GameController {
 
   loadGame() {
     const load = this.stateService.load();
-    this.levelCount = load.levelCount;
-    this.turnToMove = load.turnToMove;
-    this.playerTeam = load.playerTeam;
-    this.computerTeam = load.computerTeam;
-    this.gamePlay.drawUi(themes[this.levelCount]);
-    this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
-    this.statistic = load.stat;
-    if (this.turnToMove === 1) {
-      this.computerMove();
+    if (typeof (load) === 'object') {
+      this.levelCount = load.levelCount;
+      this.turnToMove = load.turnToMove;
+      this.playerTeam = load.playerTeam;
+      this.computerTeam = load.computerTeam;
+      this.gamePlay.drawUi(themes[this.levelCount]);
+      this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
+      this.statistic = load.stat;
+      if (this.turnToMove === 1) {
+        this.computerMove();
+      }
+    } else {
+      GamePlay.showError('Ошибка загрузки сохранения');
     }
   }
 
@@ -215,7 +225,9 @@ export default class GameController {
             this.gamePlay.redrawPositions([...this.playerTeam, ...this.computerTeam]);
             this.nextMove();
             this.computerMove();
-          } else if (this.gamePlay.cells[index].firstChild && (this.gamePlay.cells[index].firstChild.classList.contains('vampire') || this.gamePlay.cells[index].firstChild.classList.contains('undead') || this.gamePlay.cells[index].firstChild.classList.contains('daemon'))) {
+          } else if (this.gamePlay.cells[index].firstChild && (this.gamePlay.cells[index].firstChild.classList.contains('vampire')
+                                                               || this.gamePlay.cells[index].firstChild.classList.contains('undead')
+                                                               || this.gamePlay.cells[index].firstChild.classList.contains('daemon'))) {
             if (allowedAttackCellsForActiveUnit.includes(index)) {
               let characterInCell;
               this.computerTeam.forEach((element) => {
